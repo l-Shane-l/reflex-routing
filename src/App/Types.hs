@@ -33,7 +33,7 @@ import Reflex.Dom
 import Reflex.Dom.Class
 
 -- Define the possible routes in our application
-data Route = MyHome | About | Profile deriving (Eq, Show, Read, Ord)
+data Route = MyHome | About | Profile | Exercises | Garden deriving (Eq, Show, Read, Ord)
 
 -- Define the type for our counter update function
 type CounterUpdate = Int -> Int

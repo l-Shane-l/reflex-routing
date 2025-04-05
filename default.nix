@@ -1,4 +1,4 @@
-{ reflex-platform ? import ../../reflex-platform { } }:
+{ reflex-platform ? import ../reflex-platform { } }:
 let
   pkgs = reflex-platform.nixpkgs;
 in

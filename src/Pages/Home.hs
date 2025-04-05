@@ -1,43 +1,45 @@
--- For MonadWidget constraint implicit in alias
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
--- For MonadWidget constraint implicit in alias
 {-# LANGUAGE TypeFamilies #-}
 
 module Pages.Home (homePage) where
 
 import Control.Lens ((^.))
+import Data.Map (Map) -- Import Map for attributes
+import qualified Data.Map as Map
 import Data.Text (Text)
 import Reflex.Dom
 
-import App.Types -- Import shared types and aliases
-import UI.Common (css, tShow) -- Import helpers
+import App.Types
+import UI.Common (css)
 
 -- --- Page Widget ---
-homePage :: OpenActionWidget t () -- Use the alias from App.Types
-homePage appEnv () = do
-    let counterDyn = appEnv ^. env_appState . appState_counter
-    (navEvent, counterUpdateEv) <- elAttr "div" (css "page page-home") $ do
-        el "h1" $ text "Home Page"
-        el "p" $ text "Welcome to the Reflex architectural demo application!"
-        el "p" $ do text "This page demonstrates accessing shared state (the counter below) and triggering navigation."
+homePage :: OpenActionWidget t () -- Takes AppEnv, input (), returns AppEvents
+homePage _appEnv () = do
+    -- Capture navigation events from the relevant section
+    navEvent <- elAttr "div" (css "page page-home") $ do
+        -- Welcome Section
+        _ <- elAttr "div" (css "welcome-section") $ do
+            -- Handled unused bind
+            el "h1" $ text "Welcome to Focail / Do Ghairdín!"
+            el "p" $ text "Learn Irish verbs and grow your language garden."
 
-        incButtonClickEvent <- elAttr "div" (css "counter-section") $ do
-            el "h2" $ text "Shared Counter"
-            el "p" $ do text "Current count: "; elAttr "strong" (css "counter-value") $ dynText (tShow <$> counterDyn)
-            button "Increment Counter"
+        -- Action Buttons Section
+        navEventFromButtons <- elAttr "div" (css "action-buttons") $ do
+            -- Handled unused bind
+            -- Button 1: Go to Exercises
+            exBtn <- button "50 Verb Exercises"
+            -- Button 2: Go to My Garden
+            gardenBtn <- button "My Garden"
+            -- Return events for both buttons
+            pure $
+                leftmost
+                    [ Exercises <$ exBtn
+                    , Garden <$ gardenBtn -- Navigate to Garden route
+                    ]
 
-        navigationClickEvent <- elAttr "div" (css "navigation-section") $ do
-            el "h2" $ text "Navigation"
-            aboutBtn <- button "Go to About Page"
-            profileBtn <- button "Go to Profile Page"
-            pure $ leftmost [About <$ aboutBtn, Profile <$ profileBtn]
+        -- Return the combined navigation event from this page
+        pure navEventFromButtons
 
-        let counterUpdateAction = (+ 1) <$ incButtonClickEvent
-        pure (navigationClickEvent, counterUpdateAction)
-
-    pure $
-        AppEvents
-            { _ae_navigation = navEvent
-            , _ae_counterUpdate = counterUpdateEv
-            }
+    -- Construct the AppEvents record using only the navigation event
+    pure $ mempty{_ae_navigation = navEvent}

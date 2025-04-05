@@ -13,6 +13,7 @@ executable hello-world
     mtl,
     lens,
     containers,
+    jsaddle,
     text
 
   other-modules:
@@ -21,6 +22,8 @@ executable hello-world
       Pages.Home
       Pages.About
       Pages.Profile
+      Pages.Exercises
+      Pages.Garden
       UI.Common
 
   default-language:    Haskell2010
